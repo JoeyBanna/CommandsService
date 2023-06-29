@@ -28,6 +28,7 @@ namespace CommandsService.Controllers
             var obj = _commandRepo.GetAllCommandsForPlatforms(platformId);
             if(!_commandRepo.PlatformExists(platformId))
             {
+                Console.WriteLine("Could not be found");
                 return NotFound();
             }
             return Ok( _mapper.Map<IEnumerable<DTOs.CommandReadDTO>> (obj));
@@ -38,6 +39,8 @@ namespace CommandsService.Controllers
             Console.WriteLine($"--> Hit GetCommandForPlatform : {platformId} / {commandId}");
             if (!_commandRepo.PlatformExists(platformId)) 
             {
+                Console.WriteLine("Could not be found");
+
                 return NotFound();
             }
             var obj = _commandRepo.GetCommand(platformId, commandId);
@@ -45,13 +48,15 @@ namespace CommandsService.Controllers
 
         }
 
-        [HttpPost]
+        [HttpPost("CreateCommand")]
         public ActionResult<DTOs.CommandReadDTO> CreateCommandForPlatform(int platformId, DTOs.CommandCreateDTO createDTO) 
         {
             Console.WriteLine($"--> Hit Create Command For Platform : {platformId}");
 
             if (!_commandRepo.PlatformExists(platformId))
             {
+                Console.WriteLine("Could not be found");
+
                 return NotFound();
             }
 

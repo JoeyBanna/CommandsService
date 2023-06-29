@@ -1,3 +1,4 @@
+using CommandsService.AsyncDataService;
 using CommandsService.Data;
 using CommandsService.Repository;
 using Microsoft.AspNetCore.Builder;
@@ -33,6 +34,8 @@ namespace CommandsService
             services.AddDbContext<ApplicationDbContext>(options => options.UseInMemoryDatabase("InMen"));
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddScoped<ICommandRepo, CommandRepo>(); 
+            services.AddSingleton<EventProcessor.IEventProcessor,EventProcessor.EventProcessor>();
+            services.AddHostedService<MessageBusSubscriber>();
 
             services.AddSwaggerGen(c =>
             {

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CommandsService.DTOs;
 using CommandsService.Repository;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -23,6 +24,7 @@ namespace CommandsService.EventProcessor
             {
                 case EventType.PlatformPublished:
                     //to do
+                    addPlatform(message);
                     break;
                 default:break;
             }
@@ -31,11 +33,11 @@ namespace CommandsService.EventProcessor
 
         private EventType DetermineEvent(string notificationMessage)
         {
-            Console.WriteLine("---> etermining Event ");
+            Console.WriteLine("---> Determining Event ");
             var eventType = JsonSerializer.Deserialize<DTOs.GenericEventDto>(notificationMessage);
             switch (eventType.Event) 
             {
-                case "platform_Published":
+                case "Platform_Published":
                     Console.WriteLine("--> Plateform published event detected");
                     return EventType.PlatformPublished;
                 default:
@@ -50,6 +52,28 @@ namespace CommandsService.EventProcessor
             using (var scope = _scopeFactory.CreateScope())
             {
                 var repo = scope.ServiceProvider.GetRequiredService<ICommandRepo>();
+                var platformPublisheddtto = JsonSerializer.Deserialize<PlatformPublishedDTO>(platformPublishedMessage);
+
+
+                try
+                {
+                    var plat = _mapper.Map<Models.Platform>(platformPublisheddtto);
+                    if(!repo.ExternalPlatformExist(plat.ExternalId))
+                    {
+                        repo.CreatePlatform(plat);
+                        repo.SaveChanges();
+                        Console.WriteLine("---> Platform added.....");
+
+                    }
+                    else
+                    {
+                        Console.WriteLine("---> Platform already Exist.....");
+                    }
+
+                }catch(Exception ex)
+                {
+                    Console.WriteLine($"--> could not add platform to DB : {ex.Message}");
+                }
             }
         }
     }
